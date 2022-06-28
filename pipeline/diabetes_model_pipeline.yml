@@ -2,87 +2,87 @@ trigger:
 - none
 jobs:
   - job: myJob
-  timeoutInMinutes: 1000
-  variables:
-  - template: var-dev.yml
-  pool:
-  vmImage: 'ubuntu-latest'
-  steps:
-  - task: AzureCLI@2
-  displayName: 'Install AML CLI'
-  inputs:
-  azureSubscription: ${{ variables.ml-ws-connection }}
-  scriptLocation: inlineScript
-  scriptType: 'bash'
-  inlineScript: 'az extension add -n azure-cli-ml'
+    timeoutInMinutes: 1000
+    variables:
+    - template: var-dev.yml
+    pool:
+    vmImage: 'ubuntu-latest'
+    steps:
+    - task: AzureCLI@2
+    displayName: 'Install AML CLI'
+    inputs:
+    azureSubscription: ${{ variables.ml-ws-connection }}
+    scriptLocation: inlineScript
+    scriptType: 'bash'
+    inlineScript: 'az extension add -n azure-cli-ml'
 
-  # Some Data tests JUnit format files for revision of results
+    # Some Data tests JUnit format files for revision of results
 
-  - task: Bash@3
-  displayName: 'Create metadata directory'
-  inputs:
-  targetType: 'inline'
-  script: 'mkdir metadata'
+    - task: Bash@3
+    displayName: 'Create metadata directory'
+    inputs:
+    targetType: 'inline'
+    script: 'mkdir metadata'
 
-  - task: AzureCLI@2
-  displayName: 'Attach folder to workspace'
-  inputs:
-  azureSubscription: ${{ variables.ml-ws-connection }}
-  workingDirectory: ${{ variables.ml-path }}
-  scriptLocation: inlineScript
-  scriptType: 'bash'
-  inlineScript: 'az ml folder attach -w ${{ variables.ml-ws }} -g ${{ variables.ml-rg }} -e ${{ variables.ml-exp }} -t ../../metadata/folder.json'
+    - task: AzureCLI@2
+    displayName: 'Attach folder to workspace'
+    inputs:
+    azureSubscription: ${{ variables.ml-ws-connection }}
+    workingDirectory: ${{ variables.ml-path }}
+    scriptLocation: inlineScript
+    scriptType: 'bash'
+    inlineScript: 'az ml folder attach -w ${{ variables.ml-ws }} -g ${{ variables.ml-rg }} -e ${{ variables.ml-exp }} -t ../../metadata/folder.json'
 
-  - task: AzureCLI@2
-  displayName: 'Create compute for training'
-  inputs:
-  azureSubscription: ${{ variables.ml-ws-connection }}
-  workingDirectory: ${{ variables.ml-path }}
-  scriptLocation: inlineScript
-  scriptType: 'bash'
-  inlineScript: 'az ml computetarget create amlcompute -n ${{ variables.ml-ct }} --vm-size STANDARD_D2_V2 --max-nodes 3'
+    - task: AzureCLI@2
+    displayName: 'Create compute for training'
+    inputs:
+    azureSubscription: ${{ variables.ml-ws-connection }}
+    workingDirectory: ${{ variables.ml-path }}
+    scriptLocation: inlineScript
+    scriptType: 'bash'
+    inlineScript: 'az ml computetarget create amlcompute -n ${{ variables.ml-ct }} --vm-size STANDARD_D2_V2 --max-nodes 3'
 
-  # Here we can upload datasets to Data Lake
+    # Here we can upload datasets to Data Lake
 
-  - task: AzureCLI@2
-  displayName: 'Train model'
-  inputs:
-  azureSubscription: ${{ variables.ml-ws-connection }}
-  workingDirectory: ${{ variables.ml-path }}
-  scriptLocation: inlineScript
-  scriptType: 'bash'
-  inlineScript: 'az ml run submit-script -c config/train --ct ${{ variables.ml-ct }} -e ${{ variables.ml-exp }} -t ../../metadata/run.json train.py'
+    - task: AzureCLI@2
+    displayName: 'Train model'
+    inputs:
+    azureSubscription: ${{ variables.ml-ws-connection }}
+    workingDirectory: ${{ variables.ml-path }}
+    scriptLocation: inlineScript
+    scriptType: 'bash'
+    inlineScript: 'az ml run submit-script -c config/train --ct ${{ variables.ml-ct }} -e ${{ variables.ml-exp }} -t ../../metadata/run.json train.py'
 
-  - task: AzureCLI@2
-  displayName: 'Registering model'
-  inputs:
-  azureSubscription: ${{ variables.ml-ws-connection }}
-  workingDirectory: ${{ variables.ml-path }}
-  scriptLocation: inlineScript
-  scriptType: 'bash'
-  inlineScript: 'az ml model register -n ${{ variables.ml-model-name }} -f ../../metadata/run.json --asset-path outputs/ridge_0.95.pkl -t ../../metadata/model.json'
+    - task: AzureCLI@2
+    displayName: 'Registering model'
+    inputs:
+    azureSubscription: ${{ variables.ml-ws-connection }}
+    workingDirectory: ${{ variables.ml-path }}
+    scriptLocation: inlineScript
+    scriptType: 'bash'
+    inlineScript: 'az ml model register -n ${{ variables.ml-model-name }} -f ../../metadata/run.json --asset-path outputs/ridge_0.95.pkl -t ../../metadata/model.json'
 
-  - task: AzureCLI@2
-  displayName: 'Downloading model'
-  inputs:
-  azureSubscription: ${{ variables.ml-ws-connection }}
-  workingDirectory: ${{ variables.ml-path }}
-  scriptLocation: inlineScript
-  scriptType: 'bash'
-  inlineScript: 'az ml model download -g ${{ variables.ml-rg }} -w ${{ variables.ml-ws }} -i $(jq -r .modelId ../../metadata/model.json) -t ../../models/diabetes --overwrite'
+    - task: AzureCLI@2
+    displayName: 'Downloading model'
+    inputs:
+    azureSubscription: ${{ variables.ml-ws-connection }}
+    workingDirectory: ${{ variables.ml-path }}
+    scriptLocation: inlineScript
+    scriptType: 'bash'
+    inlineScript: 'az ml model download -g ${{ variables.ml-rg }} -w ${{ variables.ml-ws }} -i $(jq -r .modelId ../../metadata/model.json) -t ../../models/diabetes --overwrite'
 
-  - task: CopyFiles@2
-  displayName: 'Copying artifacts'
-  inputs:
-  SourceFolder: '$(Build.SourcesDirectory)'
-  Contents: |
-  **/metadata/**
-  **/models/**
-  TargetFolder: '$(Build.ArtifactStagingDirectory)'
+    - task: CopyFiles@2
+    displayName: 'Copying artifacts'
+    inputs:
+    SourceFolder: '$(Build.SourcesDirectory)'
+    Contents: |
+    **/metadata/**
+    **/models/**
+    TargetFolder: '$(Build.ArtifactStagingDirectory)'
 
-  - task: PublishPipelineArtifact@1
-  displayName: 'Publish pipeline artifacts'
-  inputs:
-  targetPath: '$(Build.ArtifactStagingDirectory)'
-  artifact: 'diabetes-model'
-  publishLocation: 'pipeline'
+    - task: PublishPipelineArtifact@1
+    displayName: 'Publish pipeline artifacts'
+    inputs:
+    targetPath: '$(Build.ArtifactStagingDirectory)'
+    artifact: 'diabetes-model'
+    publishLocation: 'pipeline'
