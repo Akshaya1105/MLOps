@@ -1,0 +1,98 @@
+variables:
+  ml-ws-connection: 'ml-ops-test' # Workspace Service Connection name
+  ml-ws: 'ml-ops-test' # AML Workspace name
+  ml-rg: 'tbaburin-ml-test' # AML resource Group name
+  ml-ct: 'cpu-cluster-1' # AML Compute cluster name
+  ml-path: 'models/diabetes' # Model directory path in repo
+  ml-exp: 'exp-test' # Experiment name
+  ml-model-name: 'diabetes-model' # Model name
+
+trigger:
+- none
+jobs:
+  - job: myJob
+    timeoutInMinutes: 1000
+    variables:
+    - template: var-dev.yml
+    pool:
+      vmImage: 'ubuntu-latest'
+
+  steps:
+  - task: AzureCLI@2
+    displayName: 'Install AML CLI'
+    inputs:
+      azureSubscription: $(ml-ws-connection)
+      scriptLocation: inlineScript
+      scriptType: 'bash'
+      inlineScript: 'az extension add -n azure-cli-ml'
+
+  # Some Data tests JUnit format files for revision of results
+
+  - task: Bash@3
+    displayName: 'Create metadata directory'
+    inputs:
+      targetType: 'inline'
+      script: 'mkdir metadata'
+
+  - task: AzureCLI@2
+    displayName: 'Attach folder to workspace'
+    inputs:
+      azureSubscription: $(ml-ws-connection)
+      workingDirectory: $(ml-path)
+      scriptLocation: inlineScript
+      scriptType: 'bash'
+      inlineScript: 'az ml folder attach -w $(ml-ws) -g $(ml-rg) -e $(ml-exp) -t ../../metadata/folder.json'
+
+  - task: AzureCLI@2
+    displayName: 'Create compute for training'
+    inputs:
+      azureSubscription: $(ml-ws-connection)
+      workingDirectory: $(ml-path)
+      scriptLocation: inlineScript
+      scriptType: 'bash'
+      inlineScript: 'az ml computetarget create amlcompute -n $(ml-ct) --vm-size STANDARD_D2_V2 --max-nodes 3'
+
+  # Here we can upload datasets to Data Lake
+
+  - task: AzureCLI@2
+    displayName: 'Train model'
+    inputs:
+      azureSubscription: $(ml-ws-connection)
+      workingDirectory: $(ml-path)
+      scriptLocation: inlineScript
+      scriptType: 'bash'
+      inlineScript: 'az ml run submit-script -c config/train --ct $(ml-ct) -e $(ml-exp) -t ../../metadata/run.json train.py'
+
+  - task: AzureCLI@2
+    displayName: 'Registering model'
+    inputs:
+      azureSubscription: $(ml-ws-connection)
+      workingDirectory: $(ml-path)
+      scriptLocation: inlineScript
+      scriptType: 'bash'
+      inlineScript: 'az ml model register -n $(ml-model-name) -f ../../metadata/run.json --asset-path outputs/ridge_0.95.pkl -t ../../metadata/model.json'
+
+  - task: AzureCLI@2
+    displayName: 'Downloading model'
+    inputs:
+      azureSubscription: $(ml-ws-connection)
+      workingDirectory: $(ml-path)
+      scriptLocation: inlineScript
+      scriptType: 'bash'
+      inlineScript: 'az ml model download -g $(ml-rg) -w $(ml-ws) -i $(jq -r .modelId ../../metadata/model.json) -t ../../models/diabetes --overwrite'
+
+  - task: CopyFiles@2
+    displayName: 'Copying artifacts'
+    inputs:
+      SourceFolder: '$(Build.SourcesDirectory)'
+      Contents: |
+        **/metadata/**
+        **/models/**
+      TargetFolder: '$(Build.ArtifactStagingDirectory)'
+
+  - task: PublishPipelineArtifact@1
+    displayName: 'Publish pipeline artifacts'
+    inputs:
+      targetPath: '$(Build.ArtifactStagingDirectory)'
+      artifact: 'diabetes-model'
+      publishLocation: 'pipeline'
