@@ -47,7 +47,7 @@ jobs:
       workingDirectory: ${{ variables.ml_path }}
       scriptLocation: inlineScript
       scriptType: 'bash'
-      inlineScript: 'az ml run submit-script -c training/train --ct ${{ variables.ml_ct }} -e ${{ variables.ml_exp }} -t run.json training/train_diabetes.py'
+      inlineScript: 'az ml run submit-script -c training/train --ct ${{ variables.ml_ct }} -e ${{ variables.ml_exp }} -t run_1.json training/train_diabetes.py'
 
   # Add potential approval step before registration of model
 
