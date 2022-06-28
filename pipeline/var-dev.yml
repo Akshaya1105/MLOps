@@ -5,5 +5,5 @@ variables:
   ml_ct: 'cpu-cluster-1' # AML Compute cluster name
   ml_path: '.' # Model directory path in repo
   ml_exp: 'mlops_diabetes' # Experiment name
-  ml_model_name: 'Model_diabetes' # Model name
+  ml_model_name: 'diabetes_model_mlops' # Model name
   ml_aks_name: 'my-aks-9' # AKS cluster name
