@@ -18,7 +18,7 @@ jobs:
     inputs:
       versionSpec: $(python.version)
       addToPath: true
-      architecture: 'x64'
+      #architecture: 'x64'
   - task: AzureCLI@2
     displayName: 'Install AML CLI'
     inputs:
