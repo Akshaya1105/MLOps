@@ -15,7 +15,7 @@ jobs:
   steps:
  # Template reference
   - script: | 
-     sudo apt install python3.9
+     sudo apt install python 3.9.13
   # - task: UsePythonVersion@0
   #   inputs:
   #     versionSpec: $(python.version)
