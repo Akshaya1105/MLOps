@@ -7,18 +7,20 @@ jobs:
   - template: var-dev.yml
   pool:
     vmImage: 'ubuntu latest'
-  strategy:
-    matrix:
-      Python39:
-        python.version: '3.9'
+  # strategy:
+  #   matrix:
+  #     Python39:
+  #       python.version: '3.9'
 
   steps:
  # Template reference
-  - task: UsePythonVersion@0
-    inputs:
-      versionSpec: $(python.version)
-      addToPath: true
-      #architecture: 'x64'
+  - script: | 
+     pip install python==3.9.13 -m --upgrade pip 
+  # - task: UsePythonVersion@0
+  #   inputs:
+  #     versionSpec: $(python.version)
+  #     addToPath: true
+  #     #architecture: 'x64'
   - task: AzureCLI@2
     displayName: 'Install AML CLI'
     inputs:
