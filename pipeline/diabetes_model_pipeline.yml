@@ -15,7 +15,7 @@ jobs:
   steps:
  # Template reference
   - script: | 
-     pip install python==3.9.13 -m --upgrade pip 
+     sudo apt install python3.9
   # - task: UsePythonVersion@0
   #   inputs:
   #     versionSpec: $(python.version)
