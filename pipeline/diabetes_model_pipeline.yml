@@ -15,7 +15,11 @@ jobs:
   steps:
  # Template reference
   - script: | 
-     sudo apt install python 3.9.13
+     sudo apt update && sudo apt upgrade
+     sudo apt install software-properties-common -y
+     sudo add-apt-repository ppa:deadsnakes/ppa -y
+     sudo apt update
+     sudo apt install python3.9 -y
   # - task: UsePythonVersion@0
   #   inputs:
   #     versionSpec: $(python.version)
