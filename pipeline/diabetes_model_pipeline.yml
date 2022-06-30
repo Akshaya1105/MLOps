@@ -32,7 +32,7 @@ jobs:
       workingDirectory: ${{ variables.ml_path }}
       scriptLocation: inlineScript
       scriptType: 'bash'
-      inlineScript: 'az ml folder attach -w ${{ variables.ml_ws }} -g ${{ variables.ml_rg }} -t ../../metadata/folder.json''
+      inlineScript: 'az ml folder attach -w ${{ variables.ml_ws }} -g ${{ variables.ml_rg }} -t ../../metadata/folder.json'
 
   - task: AzureCLI@2
     displayName: 'Create compute for training'
