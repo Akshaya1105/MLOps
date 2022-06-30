@@ -10,7 +10,11 @@ jobs:
 
   steps:
  # Template reference
-
+  - task: UsePythonVersion@0
+    inputs:
+      versionSpec: '3.9'
+      addToPath: true
+      architecture: 'x64'
 
   - task: AzureCLI@2
     displayName: 'Install AML CLI'
