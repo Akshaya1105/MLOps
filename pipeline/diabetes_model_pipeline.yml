@@ -32,7 +32,7 @@ jobs:
       workingDirectory: ${{ variables.ml_path }}
       scriptLocation: inlineScript
       scriptType: 'bash'
-      inlineScript: 'az ml folder attach -w ${{ variables.ml_ws }} -g ${{ variables.ml_rg }} -t ../../metadata/folder.json'
+      inlineScript: 'az ml folder attach -w ${{ variables.ml_ws }} -g ${{ variables.ml_rg }} -t ../metadata/folder.json'
 
   - task: AzureCLI@2
     displayName: 'Create compute for training'
@@ -52,7 +52,7 @@ jobs:
       workingDirectory: ${{ variables.ml_path }}
       scriptLocation: inlineScript
       scriptType: 'bash'
-      inlineScript: 'az ml run submit-script -c training/train --ct ${{ variables.ml_ct }} -e ${{ variables.ml_exp }} -t ../../metadata/run.json training/train_diabetes.py'
+      inlineScript: 'az ml run submit-script -c training/train --ct ${{ variables.ml_ct }} -e ${{ variables.ml_exp }} -t ../metadata/run.json training/train_diabetes.py'
 
   # Add potential approval step before registration of model
 
@@ -63,7 +63,7 @@ jobs:
       workingDirectory: ${{ variables.ml_path  }}
       scriptLocation: inlineScript
       scriptType: 'bash'
-      inlineScript: 'az ml model register -n ${{ variables.ml_model_name }} -f ../../metadata/run.json --asset-path outputs/ridge_0.95.pkl -t ../../metadata/model.json'
+      inlineScript: 'az ml model register -n ${{ variables.ml_model_name }} -f ../metadata/run.json --asset-path outputs/ridge_0.95.pkl -t ../metadata/model.json'
   - task: AzureCLI@2
     timeoutInMinutes: 1000
     displayName: 'Deploy model to AKS for Production'
