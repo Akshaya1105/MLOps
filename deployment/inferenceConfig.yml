@@ -1,6 +1,6 @@
-entryScript: score.py
+entryScript: ./deployment/score.py
 runtime: python
-condaFile: scoring-env.yml
+condaFile: ./deployment/scoring-env.yml
 extraDockerfileSteps:
 schemaFile:
 sourceDirectory:
