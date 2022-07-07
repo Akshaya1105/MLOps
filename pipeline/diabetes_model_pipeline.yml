@@ -81,7 +81,7 @@ jobs:
       workingDirectory: ${{ variables.ml_path  }}
       scriptLocation: inlineScript
       scriptType: 'bash'
-      inlineScript: 'az ml model register -n ${{ variables.ml_model_name }} -f metadata/run.json --asset-path outputs/ridge_0.95.pkl --output-metadata-file metadata/model.json'
+      inlineScript: 'az ml model register -n ${{ variables.ml_model_name }} -f metadata/run.json --asset-path outputs/models/sklearn_diabetes_model.pkl --output-metadata-file metadata/model.json'
   - task: AzureCLI@2
     timeoutInMinutes: 1000
     displayName: 'Deploy model to AKS for Production'
