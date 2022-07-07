@@ -2,7 +2,7 @@ variables:
   ml_ws_connection: 'edapmlops_aml' # Workspace Service Connection name
   ml_ws: 'edapmlopstest' # AML Workspace name
   ml_rg: 'dev-edap-ml-ops' # AML resource Group name
-  ml_ct: 'AHariharan2' # AML Compute cluster name
+  ml_ct: 'cpu-cluster' # AML Compute cluster name
   ml_path: '.' # Model directory path in repo
   ml_exp: 'mlops_diabetes' # Experiment name
   ml_model_name: 'diabetes_model_mlops' # Model name
