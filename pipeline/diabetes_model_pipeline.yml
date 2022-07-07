@@ -24,6 +24,7 @@ jobs:
      sudo apt-get remove -y azure-cli
      python -m pip install --upgrade pip setuptools wheel
      python -m pip install azure-cli
+     az extension add -n ml -y
     
     
   # - task: AzureCLI@2
