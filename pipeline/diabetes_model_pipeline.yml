@@ -21,9 +21,9 @@ jobs:
       #architecture: 'x64'
   - script: | 
      # remove buggy azure-cli  
-     sudo apt-get remove -y azure-cli-ml
+     sudo apt-get remove -y azure-cli
      python -m pip install --upgrade pip setuptools wheel
-     python -m pip install azure-cli-ml
+     python -m pip install azure-cli
     
     
   # - task: AzureCLI@2
