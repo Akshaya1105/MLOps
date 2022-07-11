@@ -1,4 +1,4 @@
-script: train_diabetes.py
+script: training/train_diabetes.py
 arguments: []
 framework: Python
 environment:
